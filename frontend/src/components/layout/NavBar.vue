@@ -11,7 +11,7 @@
                             class="h-14 md:h-10 w-auto"
                         />
                         <span
-                            class="hidden md:inline text-xl font-display font-bold text-primary"
+                            class="hidden md:inline text-lg font-display font-bold text-primary"
                             >Eco Power Tech Global</span
                         >
                     </router-link>
