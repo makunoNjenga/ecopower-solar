@@ -1,0 +1,60 @@
+<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for the sun -->
+    <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FBC02D"/>
+      <stop offset="100%" stop-color="#F57F17"/>
+    </radialGradient>
+
+    <!-- Gradient for the leaf -->
+    <linearGradient id="leafGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4CAF50"/>
+      <stop offset="100%" stop-color="#2E7D32"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sun with rays -->
+  <g transform="translate(40, 35)">
+    <!-- Sun rays -->
+    <g stroke="#FBC02D" stroke-width="3" stroke-linecap="round">
+      <line x1="25" y1="0" x2="25" y2="8"/>
+      <line x1="25" y1="42" x2="25" y2="50"/>
+      <line x1="0" y1="25" x2="8" y2="25"/>
+      <line x1="42" y1="25" x2="50" y2="25"/>
+      <line x1="7.32" y1="7.32" x2="12.68" y2="12.68"/>
+      <line x1="37.32" y1="37.32" x2="42.68" y2="42.68"/>
+      <line x1="7.32" y1="42.68" x2="12.68" y2="37.32"/>
+      <line x1="37.32" y1="12.68" x2="42.68" y2="7.32"/>
+    </g>
+
+    <!-- Sun circle -->
+    <circle cx="25" cy="25" r="15" fill="url(#sunGradient)"/>
+  </g>
+
+  <!-- Leaf -->
+  <g transform="translate(20, 45)">
+    <path d="M 25 35 Q 15 20, 25 5 Q 35 20, 25 35 Z" fill="url(#leafGradient)"/>
+    <path d="M 25 35 Q 25 25, 25 15" stroke="#2E7D32" stroke-width="2" fill="none"/>
+  </g>
+
+  <!-- Solar panel grid -->
+  <g transform="translate(55, 55)">
+    <rect x="0" y="0" width="30" height="20" fill="#0288D1" rx="2"/>
+    <g stroke="#FFFFFF" stroke-width="1">
+      <line x1="10" y1="0" x2="10" y2="20"/>
+      <line x1="20" y1="0" x2="20" y2="20"/>
+      <line x1="0" y1="7" x2="30" y2="7"/>
+      <line x1="0" y1="13" x2="30" y2="13"/>
+    </g>
+  </g>
+
+  <!-- Main text "ECOPOWER" -->
+  <text x="110" y="55" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#2E7D32">
+    ECOPOWER
+  </text>
+
+  <!-- Subtitle "TECH GLOBAL" -->
+  <text x="115" y="75" font-family="Arial, sans-serif" font-size="14" font-weight="normal" fill="#666666" letter-spacing="2px">
+    TECH GLOBAL
+  </text>
+</svg>
