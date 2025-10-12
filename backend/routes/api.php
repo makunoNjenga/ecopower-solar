@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\BlogImageController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuestBlogController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductImageController;
 use App\Http\Controllers\UserController;
@@ -27,6 +30,10 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}/products', [CategoryController::class, 'products']);
+
+// Public blog routes
+Route::get('/blogs', [GuestBlogController::class, 'index']);
+Route::get('/blogs/{slug}', [GuestBlogController::class, 'show']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -69,4 +76,19 @@ Route::middleware(['auth:sanctum', 'admin'])
         // User management
         Route::get('/users', [UserController::class, 'index']);
         Route::put('/users/{user}/status', [UserController::class, 'updateStatus']);
+
+        // Blog management
+        Route::get('/blogs', [BlogController::class, 'index']);
+        Route::get('/blogs/statistics', [BlogController::class, 'statistics']);
+        Route::get('/blogs/{blog}', [BlogController::class, 'show']);
+        Route::post('/blogs', [BlogController::class, 'store']);
+        Route::put('/blogs/{blog}', [BlogController::class, 'update']);
+        Route::delete('/blogs/{blog}', [BlogController::class, 'destroy']);
+
+        // Blog image management
+        Route::get('/blogs/{blog}/images', [BlogImageController::class, 'index']);
+        Route::post('/blogs/{blog}/images', [BlogImageController::class, 'store']);
+        Route::post('/blogs/{blog}/images/multiple', [BlogImageController::class, 'storeMultiple']);
+        Route::put('/blogs/{blog}/images/{image}', [BlogImageController::class, 'update']);
+        Route::delete('/blogs/{blog}/images/{image}', [BlogImageController::class, 'destroy']);
     });

@@ -45,9 +45,6 @@
                             <router-link to="/profile" class="dropdown-item"
                                 >Profile</router-link
                             >
-                            <router-link to="/orders" class="dropdown-item"
-                                >My Orders</router-link
-                            >
                             <div
                                 v-if="authStore.isAdmin"
                                 class="border-t border-gray-100"
@@ -109,9 +106,6 @@
                     >
                         <router-link to="/profile" class="block nav-link"
                             >Profile</router-link
-                        >
-                        <router-link to="/orders" class="block nav-link"
-                            >My Orders</router-link
                         >
                         <router-link
                             v-if="authStore.isAdmin"

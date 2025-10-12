@@ -11,15 +11,12 @@ import CheckoutView from '@/views/CheckoutView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import ProfileView from '@/views/user/ProfileView.vue'
-import OrdersView from '@/views/user/OrdersView.vue'
-import OrderDetailView from '@/views/user/OrderDetailView.vue'
 import AdminDashboard from '@/views/admin/DashboardView.vue'
 import AdminProducts from '@/views/admin/ProductsView.vue'
 import AdminProductImages from '@/views/admin/ProductImagesView.vue'
 import AdminBlogs from '@/views/admin/BlogsView.vue'
 import AdminBlogForm from '@/views/admin/BlogFormView.vue'
 import AdminBlogImages from '@/views/admin/BlogImagesView.vue'
-import AdminOrders from '@/views/admin/OrdersView.vue'
 import AdminUsers from '@/views/admin/UsersView.vue'
 import AdminCategories from '@/views/admin/CategoriesView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
@@ -95,25 +92,6 @@ const routes = [
     }
   },
   {
-    path: '/orders',
-    name: 'orders',
-    component: OrdersView,
-    meta: {
-      title: 'My Orders - Eco Power Tech Global',
-      requiresAuth: true
-    }
-  },
-  {
-    path: '/orders/:id',
-    name: 'order-detail',
-    component: OrderDetailView,
-    props: true,
-    meta: {
-      title: 'Order Details - Eco Power Tech Global',
-      requiresAuth: true
-    }
-  },
-  {
     path: '/admin',
     name: 'admin',
     component: AdminDashboard,
@@ -140,16 +118,6 @@ const routes = [
     props: true,
     meta: {
       title: 'Manage Product Images - Admin - Eco Power Tech Global',
-      requiresAuth: true,
-      requiresAdmin: true
-    }
-  },
-  {
-    path: '/admin/orders',
-    name: 'admin-orders',
-    component: AdminOrders,
-    meta: {
-      title: 'Manage Orders - Admin - Eco Power Tech Global',
       requiresAuth: true,
       requiresAdmin: true
     }

@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import { dashboardService } from "@/services/dashboardService";
 import { productService } from "@/services/productService";
 import { categoryService } from "@/services/categoryService";
+import { blogService } from "@/services/blogService";
 import WysiwygEditor from "@/components/ui/WysiwygEditor.vue";
 import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 
@@ -77,6 +78,13 @@ function goToProducts() {
  */
 function goToCategories() {
     router.push("/admin/categories");
+}
+
+/**
+ * Navigate to manage blogs page
+ */
+function goToBlogs() {
+    router.push("/admin/blogs");
 }
 
 /**
@@ -215,6 +223,9 @@ onMounted(() => {
                 </button>
                 <button @click="goToCategories" class="btn-primary">
                     <i class="fa fa-folder mr-2"></i>Manage Categories
+                </button>
+                <button @click="goToBlogs" class="btn-primary">
+                    <i class="fa fa-newspaper mr-2"></i>Manage Blog
                 </button>
             </div>
         </div>
