@@ -10,12 +10,39 @@ const api = axios.create({
   },
 })
 
-// Request interceptor to add auth token
+// Store for tracking last session check
+let lastSessionCheck = Date.now()
+const SESSION_CHECK_INTERVAL = 2 * 60 * 1000 // 2 minutes
+
+/**
+ * Verifies if session check is needed
+ * 
+ * @returns {boolean} True if session should be verified
+ */
+const shouldVerifySession = () => {
+  const now = Date.now()
+  return (now - lastSessionCheck) > SESSION_CHECK_INTERVAL
+}
+
+/**
+ * Updates last session check timestamp
+ */
+const updateSessionCheck = () => {
+  lastSessionCheck = Date.now()
+}
+
+// Request interceptor to add auth token and verify session
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+      
+      // Add session check flag for verification
+      if (shouldVerifySession() && config.url !== '/user') {
+        config.headers['X-Verify-Session'] = 'true'
+        updateSessionCheck()
+      }
     }
     return config
   },
@@ -24,7 +51,7 @@ api.interceptors.request.use(
   }
 )
 
-// Response interceptor to handle errors
+// Response interceptor to handle errors and session validation
 api.interceptors.response.use(
   (response) => {
     return response.data
@@ -36,11 +63,37 @@ api.interceptors.response.use(
       const { status, data } = error.response
 
       if (status === 401) {
-        // Unauthorized - clear token and redirect to login
-        localStorage.removeItem('auth_token')
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login'
+        // Unauthorized - session expired or invalid token
+        const token = localStorage.getItem('auth_token')
+        
+        if (token) {
+          // Had a token but it's invalid/expired - clear everything
+          localStorage.removeItem('auth_token')
+          
+          // Redirect to login with expired session message
+          const currentPath = window.location.pathname
+          if (currentPath !== '/login') {
+            const message = data?.message || 'Your session has expired. Please login again.'
+            const queryParams = new URLSearchParams({ 
+              message, 
+              expired: 'true',
+              redirect: currentPath 
+            })
+            window.location.href = `/login?${queryParams.toString()}`
+          }
+        } else {
+          // No token, just redirect to login
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login'
+          }
         }
+      }
+
+      // Handle 419 (CSRF token mismatch) - treat as session expired
+      if (status === 419) {
+        localStorage.removeItem('auth_token')
+        const message = 'Session expired. Please login again.'
+        window.location.href = `/login?message=${encodeURIComponent(message)}&expired=true`
       }
 
       // Create error object with message
