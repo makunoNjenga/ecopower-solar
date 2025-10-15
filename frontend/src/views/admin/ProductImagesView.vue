@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useAlert } from "@/composables/useAlert";
 import { productService } from "@/services/productService";
 
 const route = useRoute();
 const router = useRouter();
+const alert = useAlert();
 const product = ref(null);
 const images = ref([]);
 const loading = ref(false);
@@ -24,7 +26,7 @@ async function loadProduct() {
         product.value = response.data;
     } catch (error) {
         console.error("Error loading product:", error);
-        alert("Failed to load product");
+        alert.error("Failed to load product");
         router.push("/admin/products");
     } finally {
         loading.value = false;
@@ -41,7 +43,7 @@ async function loadImages() {
         images.value = response.data || response;
     } catch (error) {
         console.error("Error loading images:", error);
-        alert("Failed to load images");
+        alert.error("Failed to load images");
     } finally {
         loading.value = false;
     }
@@ -66,7 +68,7 @@ function onFileSelect(event) {
  */
 async function uploadImages() {
     if (selectedFiles.value.length === 0) {
-        alert("Please select at least one image");
+        alert.warning("Please select at least one image");
         return;
     }
 
@@ -82,7 +84,7 @@ async function uploadImages() {
             formData.append("is_primary", isPrimary.value ? "1" : "0");
 
             await productService.uploadProductImage(route.params.id, formData);
-            alert("Image uploaded successfully");
+            alert.success("Image uploaded successfully");
         } else {
             // Multiple files - use multiple upload method
             const formData = new FormData();
@@ -114,15 +116,17 @@ async function uploadImages() {
             const data = response.data;
 
             if (data.success_count > 0) {
-                alert(`${data.success_count} images uploaded successfully`);
+                alert.success(
+                    `${data.success_count} images uploaded successfully`
+                );
 
                 if (data.error_count && data.error_count > 0) {
-                    alert(
-                        `Warning: ${data.error_count} images failed to upload`
+                    alert.warning(
+                        `${data.error_count} images failed to upload`
                     );
                 }
             } else {
-                alert("Failed to upload images");
+                alert.error("Failed to upload images");
             }
         }
 
@@ -141,7 +145,7 @@ async function uploadImages() {
         await loadImages();
     } catch (error) {
         console.error("Error uploading images:", error);
-        alert(
+        alert.error(
             "Failed to upload images: " +
                 (error.response?.data?.message || error.message)
         );
@@ -161,10 +165,10 @@ async function setPrimaryImage(image) {
             is_primary: true,
         });
         await loadImages();
-        alert("Primary image updated");
+        alert.success("Primary image updated");
     } catch (error) {
         console.error("Error updating primary image:", error);
-        alert("Failed to update primary image");
+        alert.error("Failed to update primary image");
     } finally {
         loading.value = false;
     }
@@ -174,7 +178,9 @@ async function setPrimaryImage(image) {
  * Delete image
  */
 async function deleteImage(image) {
-    if (!confirm("Are you sure you want to delete this image?")) {
+    const confirmed = await alert.confirmDelete("this image");
+
+    if (!confirmed) {
         return;
     }
 
@@ -182,10 +188,10 @@ async function deleteImage(image) {
     try {
         await productService.deleteProductImage(route.params.id, image.id);
         await loadImages();
-        alert("Image deleted successfully");
+        alert.success("Image deleted successfully");
     } catch (error) {
         console.error("Error deleting image:", error);
-        alert("Failed to delete image");
+        alert.error("Failed to delete image");
     } finally {
         loading.value = false;
     }

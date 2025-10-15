@@ -22,10 +22,10 @@ async function loadBlog() {
     } catch (error) {
         console.error("Error loading blog:", error);
         if (error.status === 404) {
-            alert("Blog not found");
+            alert.error("Blog not found");
             router.push("/blogs");
         } else {
-            alert("Failed to load blog");
+            alert.error("Failed to load blog");
         }
     } finally {
         loading.value = false;

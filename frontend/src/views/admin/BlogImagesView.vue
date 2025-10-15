@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useAlert } from "@/composables/useAlert";
 import { blogService } from "@/services/blogService";
 
 const route = useRoute();
 const router = useRouter();
+const alert = useAlert();
 const blog = ref(null);
 const images = ref([]);
 const loading = ref(false);
@@ -23,7 +25,7 @@ async function loadBlog() {
         blog.value = response.data || response;
     } catch (error) {
         console.error("Error loading blog:", error);
-        alert("Failed to load blog");
+        alert.error("Failed to load blog");
         router.push("/admin/blogs");
     } finally {
         loading.value = false;
@@ -40,7 +42,7 @@ async function loadImages() {
         images.value = response.data || response;
     } catch (error) {
         console.error("Error loading images:", error);
-        alert("Failed to load images");
+        alert.error("Failed to load images");
     } finally {
         loading.value = false;
     }
@@ -65,7 +67,7 @@ function onFileSelect(event) {
  */
 async function uploadImages() {
     if (selectedFiles.value.length === 0) {
-        alert("Please select at least one image");
+        alert.warning("Please select at least one image");
         return;
     }
 
@@ -79,7 +81,7 @@ async function uploadImages() {
             formData.append("caption", caption.value);
 
             await blogService.uploadBlogImage(route.params.id, formData);
-            alert("Image uploaded successfully");
+            alert.success("Image uploaded successfully");
         } else {
             const formData = new FormData();
 
@@ -107,15 +109,17 @@ async function uploadImages() {
             const data = response.data;
 
             if (data.success_count > 0) {
-                alert(`${data.success_count} images uploaded successfully`);
+                alert.success(
+                    `${data.success_count} images uploaded successfully`
+                );
 
                 if (data.error_count && data.error_count > 0) {
-                    alert(
-                        `Warning: ${data.error_count} images failed to upload`
+                    alert.warning(
+                        `${data.error_count} images failed to upload`
                     );
                 }
             } else {
-                alert("Failed to upload images");
+                alert.error("Failed to upload images");
             }
         }
 
@@ -132,7 +136,7 @@ async function uploadImages() {
         await loadImages();
     } catch (error) {
         console.error("Error uploading images:", error);
-        alert(
+        alert.error(
             "Failed to upload images: " +
                 (error.response?.data?.message || error.message)
         );
@@ -145,7 +149,9 @@ async function uploadImages() {
  * Delete image
  */
 async function deleteImage(image) {
-    if (!confirm("Are you sure you want to delete this image?")) {
+    const confirmed = await alert.confirmDelete("this image");
+
+    if (!confirmed) {
         return;
     }
 
@@ -153,10 +159,10 @@ async function deleteImage(image) {
     try {
         await blogService.deleteBlogImage(route.params.id, image.id);
         await loadImages();
-        alert("Image deleted successfully");
+        alert.success("Image deleted successfully");
     } catch (error) {
         console.error("Error deleting image:", error);
-        alert("Failed to delete image");
+        alert.error("Failed to delete image");
     } finally {
         loading.value = false;
     }

@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import { useAlert } from "@/composables/useAlert";
 import { blogService } from "@/services/blogService";
 import { categoryService } from "@/services/categoryService";
 import Pagination from "@/components/ui/Pagination.vue";
 
 const router = useRouter();
+const alert = useAlert();
 const blogs = ref([]);
 const categories = ref([]);
 const loading = ref(false);
@@ -57,7 +59,7 @@ async function loadBlogs() {
         }
     } catch (error) {
         console.error("Error loading blogs:", error);
-        alert("Failed to load blogs");
+        alert.error("Failed to load blogs");
     } finally {
         loading.value = false;
     }

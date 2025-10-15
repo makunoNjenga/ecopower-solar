@@ -102,7 +102,7 @@ export function useAlert() {
    * @returns {Promise<boolean>} True if confirmed, false if cancelled
    */
   const confirmDelete = async (itemName = 'this item') => {
-    return confirm({
+    return await confirm({
       title: 'Delete Confirmation',
       text: `Are you sure you want to delete ${itemName}? This action cannot be undone.`,
       icon: 'warning',
