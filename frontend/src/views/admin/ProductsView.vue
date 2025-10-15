@@ -1,13 +1,14 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
 import { useRouter } from "vue-router";
+import { useAlert } from "@/composables/useAlert";
 import { productService } from "@/services/productService";
 import { categoryService } from "@/services/categoryService";
 import WysiwygEditor from "@/components/ui/WysiwygEditor.vue";
-import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import Pagination from "@/components/ui/Pagination.vue";
 
 const router = useRouter();
+const alert = useAlert();
 const products = ref([]);
 const categories = ref([]);
 const loading = ref(false);
@@ -16,8 +17,6 @@ const isEditing = ref(false);
 const currentProduct = ref(null);
 const searchQuery = ref("");
 const selectedCategory = ref("");
-const showDeleteDialog = ref(false);
-const productToDelete = ref(null);
 
 // Pagination state
 const currentPage = ref(1);
@@ -96,12 +95,12 @@ async function loadProducts() {
         console.error("Error loading products:", error);
 
         if (error.status === 401) {
-            alert("Authentication required. Please log in again.");
+            alert.error("Authentication required. Please log in again.");
             router.push("/login");
         } else if (error.status === 403) {
-            alert("Access denied. Admin privileges required.");
+            alert.error("Access denied. Admin privileges required.");
         } else {
-            alert(
+            alert.error(
                 "Failed to load products: " + (error.message || "Unknown error")
             );
         }
@@ -211,14 +210,14 @@ async function saveProduct() {
 
         showModal.value = false;
         await loadProducts();
-        alert(
+        alert.success(
             isEditing.value
                 ? "Product updated successfully"
                 : "Product created successfully"
         );
     } catch (error) {
         console.error("Error saving product:", error);
-        alert(
+        alert.error(
             "Failed to save product: " +
                 (error.response?.data?.message || error.message)
         );
@@ -228,39 +227,24 @@ async function saveProduct() {
 }
 
 /**
- * Show delete confirmation dialog
+ * Show delete confirmation dialog and delete product
  */
-function confirmDelete(product) {
-    productToDelete.value = product;
-    showDeleteDialog.value = true;
-}
+async function confirmDelete(product) {
+    const confirmed = await alert.confirmDelete(product.name);
 
-/**
- * Delete product after confirmation
- */
-async function deleteProduct() {
-    if (!productToDelete.value) return;
-
-    loading.value = true;
-    try {
-        await productService.deleteProduct(productToDelete.value.id);
-        await loadProducts();
-        alert("Product deleted successfully");
-        productToDelete.value = null;
-    } catch (error) {
-        console.error("Error deleting product:", error);
-        alert("Failed to delete product");
-    } finally {
-        loading.value = false;
+    if (confirmed) {
+        loading.value = true;
+        try {
+            await productService.deleteProduct(product.id);
+            await loadProducts();
+            alert.success("Product deleted successfully");
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            alert.error("Failed to delete product");
+        } finally {
+            loading.value = false;
+        }
     }
-}
-
-/**
- * Cancel delete action
- */
-function cancelDelete() {
-    productToDelete.value = null;
-    showDeleteDialog.value = false;
 }
 
 /**
@@ -396,7 +380,7 @@ onMounted(() => {
                                 >
                                     <img
                                         v-if="product.primary_image"
-                                        :src="`/storage/${product.primary_image.path}`"
+                                        :src="product.primary_image.path"
                                         :alt="product.name"
                                         class="h-10 w-10 rounded object-cover hover:opacity-75 transition-opacity"
                                     />
@@ -742,17 +726,5 @@ onMounted(() => {
                 </form>
             </div>
         </div>
-
-        <!-- Delete Confirmation Dialog -->
-        <ConfirmDialog
-            v-model:show="showDeleteDialog"
-            title="Delete Product"
-            :message="`Are you sure you want to delete '${productToDelete?.name}'? This action cannot be undone.`"
-            confirm-text="Delete"
-            cancel-text="Cancel"
-            type="danger"
-            @confirm="deleteProduct"
-            @cancel="cancelDelete"
-        />
     </div>
 </template>

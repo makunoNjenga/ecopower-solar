@@ -1,16 +1,15 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useAlert } from "@/composables/useAlert";
 import { categoryService } from "@/services/categoryService";
-import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 
+const alert = useAlert();
 const categories = ref([]);
 const loading = ref(false);
 const showModal = ref(false);
 const isEditing = ref(false);
 const currentCategory = ref(null);
 const searchQuery = ref("");
-const showDeleteDialog = ref(false);
-const categoryToDelete = ref(null);
 
 const form = ref({
     name: "",
@@ -49,7 +48,7 @@ async function loadCategories() {
             response.data?.categories || response.categories || [];
     } catch (error) {
         console.error("Error loading categories:", error);
-        alert("Failed to load categories");
+        alert.error("Failed to load categories");
     } finally {
         loading.value = false;
     }
@@ -114,14 +113,14 @@ async function saveCategory() {
 
         showModal.value = false;
         await loadCategories();
-        alert(
+        alert.success(
             isEditing.value
                 ? "Category updated successfully"
                 : "Category created successfully"
         );
     } catch (error) {
         console.error("Error saving category:", error);
-        alert(
+        alert.error(
             "Failed to save category: " +
                 (error.response?.data?.message || error.message)
         );
@@ -131,42 +130,27 @@ async function saveCategory() {
 }
 
 /**
- * Show delete confirmation dialog
+ * Show delete confirmation dialog and delete category
  */
-function confirmDelete(category) {
-    categoryToDelete.value = category;
-    showDeleteDialog.value = true;
-}
+async function confirmDelete(category) {
+    const confirmed = await alert.confirmDelete(category.name);
 
-/**
- * Delete category after confirmation
- */
-async function deleteCategory() {
-    if (!categoryToDelete.value) return;
-
-    loading.value = true;
-    try {
-        await categoryService.deleteCategory(categoryToDelete.value.id);
-        await loadCategories();
-        alert("Category deleted successfully");
-        categoryToDelete.value = null;
-    } catch (error) {
-        console.error("Error deleting category:", error);
-        alert(
-            "Failed to delete category: " +
-                (error.response?.data?.message || error.message)
-        );
-    } finally {
-        loading.value = false;
+    if (confirmed) {
+        loading.value = true;
+        try {
+            await categoryService.deleteCategory(category.id);
+            await loadCategories();
+            alert.success("Category deleted successfully");
+        } catch (error) {
+            console.error("Error deleting category:", error);
+            alert.error(
+                "Failed to delete category: " +
+                    (error.response?.data?.message || error.message)
+            );
+        } finally {
+            loading.value = false;
+        }
     }
-}
-
-/**
- * Cancel delete action
- */
-function cancelDelete() {
-    categoryToDelete.value = null;
-    showDeleteDialog.value = false;
 }
 
 /**
@@ -429,17 +413,5 @@ onMounted(() => {
                 </form>
             </div>
         </div>
-
-        <!-- Delete Confirmation Dialog -->
-        <ConfirmDialog
-            v-model:show="showDeleteDialog"
-            title="Delete Category"
-            :message="`Are you sure you want to delete '${categoryToDelete?.name}'? This action cannot be undone.`"
-            confirm-text="Delete"
-            cancel-text="Cancel"
-            type="danger"
-            @confirm="deleteCategory"
-            @cancel="cancelDelete"
-        />
     </div>
 </template>

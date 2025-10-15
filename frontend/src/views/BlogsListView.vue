@@ -261,7 +261,7 @@ onMounted(() => {
                             <div class="aspect-w-16 aspect-h-9 bg-gray-100">
                                 <img
                                     v-if="blog.featured_image"
-                                    :src="`/storage/${blog.featured_image}`"
+                                    :src="blog.featured_image"
                                     :alt="blog.title"
                                     class="w-full h-64 md:h-full object-cover"
                                 />

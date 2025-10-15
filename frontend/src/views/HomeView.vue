@@ -154,7 +154,7 @@
                             >
                                 <img
                                     v-if="product.primary_image"
-                                    :src="`/storage/${product.primary_image.path}`"
+                                    :src="product.primary_image.path"
                                     :alt="
                                         product.primary_image.alt_text ||
                                         product.name

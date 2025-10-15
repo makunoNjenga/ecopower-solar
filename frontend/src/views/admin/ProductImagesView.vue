@@ -346,7 +346,7 @@ onMounted(() => {
                 <!-- Image -->
                 <div class="aspect-square bg-gray-100">
                     <img
-                        :src="`/storage/${image.path}`"
+                        :src="image.path"
                         :alt="image.alt_text || product?.name"
                         class="w-full h-full object-cover"
                     />

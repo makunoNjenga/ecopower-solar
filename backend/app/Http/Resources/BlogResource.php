@@ -24,7 +24,7 @@ class BlogResource extends JsonResource
             'content'          => $this->content,
             'category_id'      => $this->category_id,
             'author_id'        => $this->author_id,
-            'featured_image'   => $this->featured_image,
+            'featured_image'   => $this->featured_image ? url('/storage/' . $this->featured_image) : null,
             'meta_title'       => $this->meta_title,
             'meta_description' => $this->meta_description,
             'meta_keywords'    => $this->meta_keywords,

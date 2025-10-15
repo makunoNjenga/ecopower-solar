@@ -1,22 +1,21 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { useAlert } from "@/composables/useAlert";
 import { dashboardService } from "@/services/dashboardService";
 import { productService } from "@/services/productService";
 import { categoryService } from "@/services/categoryService";
 import { blogService } from "@/services/blogService";
 import WysiwygEditor from "@/components/ui/WysiwygEditor.vue";
-import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 
 const router = useRouter();
+const alert = useAlert();
 const loading = ref(false);
 const stats = ref(null);
 const categories = ref([]);
 const showModal = ref(false);
 const isEditing = ref(false);
 const currentProduct = ref(null);
-const showDeleteDialog = ref(false);
-const productToDelete = ref(null);
 
 const form = ref({
     name: "",
@@ -47,7 +46,7 @@ async function loadStats() {
         stats.value = response;
     } catch (error) {
         console.error("Error loading stats:", error);
-        alert("Failed to load dashboard statistics");
+        alert.error("Failed to load dashboard statistics");
     } finally {
         loading.value = false;
     }
@@ -157,10 +156,10 @@ async function saveProduct() {
 
         showModal.value = false;
         await loadStats();
-        alert("Product updated successfully");
+        alert.success("Product updated successfully");
     } catch (error) {
         console.error("Error saving product:", error);
-        alert(
+        alert.error(
             "Failed to save product: " +
                 (error.response?.data?.message || error.message)
         );
@@ -170,39 +169,24 @@ async function saveProduct() {
 }
 
 /**
- * Show delete confirmation dialog
+ * Show delete confirmation dialog and delete product
  */
-function confirmDelete(product) {
-    productToDelete.value = product;
-    showDeleteDialog.value = true;
-}
+async function confirmDelete(product) {
+    const confirmed = await alert.confirmDelete(product.name);
 
-/**
- * Delete product after confirmation
- */
-async function deleteProduct() {
-    if (!productToDelete.value) return;
-
-    loading.value = true;
-    try {
-        await productService.deleteProduct(productToDelete.value.id);
-        await loadStats();
-        alert("Product deleted successfully");
-        productToDelete.value = null;
-    } catch (error) {
-        console.error("Error deleting product:", error);
-        alert("Failed to delete product");
-    } finally {
-        loading.value = false;
+    if (confirmed) {
+        loading.value = true;
+        try {
+            await productService.deleteProduct(product.id);
+            await loadStats();
+            alert.success("Product deleted successfully");
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            alert.error("Failed to delete product");
+        } finally {
+            loading.value = false;
+        }
     }
-}
-
-/**
- * Cancel delete action
- */
-function cancelDelete() {
-    productToDelete.value = null;
-    showDeleteDialog.value = false;
 }
 
 onMounted(() => {
@@ -471,7 +455,9 @@ onMounted(() => {
                                         >
                                             <img
                                                 v-if="product.primary_image"
-                                                :src="`/storage/${product.primary_image.path}`"
+                                                :src="
+                                                    product.primary_image.path
+                                                "
                                                 :alt="product.name"
                                                 class="h-10 w-10 rounded object-cover hover:opacity-75 transition-opacity"
                                             />
@@ -613,7 +599,7 @@ onMounted(() => {
                             >
                                 <img
                                     v-if="product.primary_image"
-                                    :src="`/storage/${product.primary_image.path}`"
+                                    :src="product.primary_image.path"
                                     :alt="product.name"
                                     class="h-8 w-8 rounded object-cover hover:opacity-75 transition-opacity"
                                 />
@@ -878,17 +864,5 @@ onMounted(() => {
                 </form>
             </div>
         </div>
-
-        <!-- Delete Confirmation Dialog -->
-        <ConfirmDialog
-            v-model:show="showDeleteDialog"
-            title="Delete Product"
-            :message="`Are you sure you want to delete '${productToDelete?.name}'? This action cannot be undone.`"
-            confirm-text="Delete"
-            cancel-text="Cancel"
-            type="danger"
-            @confirm="deleteProduct"
-            @cancel="cancelDelete"
-        />
     </div>
 </template>

@@ -19,7 +19,7 @@ class BlogImageResource extends JsonResource
         return [
             'id'         => $this->id,
             'blog_id'    => $this->blog_id,
-            'image_path' => $this->image_path,
+            'image_path' => $this->image_path ? url('/storage/' . $this->image_path) : null,
             'alt_text'   => $this->alt_text,
             'caption'    => $this->caption,
             'sort_order' => $this->sort_order,

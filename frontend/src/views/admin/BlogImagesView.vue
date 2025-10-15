@@ -283,7 +283,7 @@ onMounted(() => {
             >
                 <div class="relative aspect-video bg-gray-200">
                     <img
-                        :src="`/storage/${image.image_path}`"
+                        :src="image.image_path"
                         :alt="image.alt_text || 'Blog image'"
                         class="w-full h-full object-cover"
                     />

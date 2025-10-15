@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import { useAlert } from "@/composables/useAlert";
 import { blogService } from "@/services/blogService";
 import { categoryService } from "@/services/categoryService";
-import ConfirmDialog from "@/components/ui/ConfirmDialog.vue";
 import Pagination from "@/components/ui/Pagination.vue";
 
 const router = useRouter();
+const alert = useAlert();
 const blogs = ref([]);
 const categories = ref([]);
 const statistics = ref(null);
@@ -14,8 +15,6 @@ const loading = ref(false);
 const searchQuery = ref("");
 const selectedCategory = ref("");
 const selectedStatus = ref("");
-const showDeleteDialog = ref(false);
-const blogToDelete = ref(null);
 
 // Pagination state
 const currentPage = ref(1);
@@ -68,12 +67,12 @@ async function loadBlogs() {
         console.error("Error loading blogs:", error);
 
         if (error.status === 401) {
-            alert("Authentication required. Please log in again.");
+            alert.error("Authentication required. Please log in again.");
             router.push("/login");
         } else if (error.status === 403) {
-            alert("Access denied. Admin privileges required.");
+            alert.error("Access denied. Admin privileges required.");
         } else {
-            alert(
+            alert.error(
                 "Failed to load blogs: " + (error.message || "Unknown error")
             );
         }
@@ -129,40 +128,25 @@ function manageImages(blog) {
 }
 
 /**
- * Show delete confirmation dialog
+ * Show delete confirmation dialog and delete blog
  */
-function confirmDelete(blog) {
-    blogToDelete.value = blog;
-    showDeleteDialog.value = true;
-}
+async function confirmDelete(blog) {
+    const confirmed = await alert.confirmDelete(blog.title);
 
-/**
- * Delete blog after confirmation
- */
-async function deleteBlog() {
-    if (!blogToDelete.value) return;
-
-    loading.value = true;
-    try {
-        await blogService.deleteBlog(blogToDelete.value.id);
-        await loadBlogs();
-        await loadStatistics();
-        alert("Blog deleted successfully");
-        blogToDelete.value = null;
-    } catch (error) {
-        console.error("Error deleting blog:", error);
-        alert("Failed to delete blog");
-    } finally {
-        loading.value = false;
+    if (confirmed) {
+        loading.value = true;
+        try {
+            await blogService.deleteBlog(blog.id);
+            await loadBlogs();
+            await loadStatistics();
+            alert.success("Blog deleted successfully");
+        } catch (error) {
+            console.error("Error deleting blog:", error);
+            alert.error("Failed to delete blog");
+        } finally {
+            loading.value = false;
+        }
     }
-}
-
-/**
- * Cancel delete action
- */
-function cancelDelete() {
-    blogToDelete.value = null;
-    showDeleteDialog.value = false;
 }
 
 /**
@@ -395,7 +379,7 @@ onMounted(() => {
                                 >
                                     <img
                                         v-if="blog.featured_image"
-                                        :src="`/storage/${blog.featured_image}`"
+                                        :src="blog.featured_image"
                                         :alt="blog.title"
                                         class="h-16 w-16 rounded object-cover hover:opacity-75 transition-opacity"
                                     />
@@ -506,16 +490,5 @@ onMounted(() => {
                 />
             </div>
         </div>
-
-        <!-- Delete Confirmation Dialog -->
-        <ConfirmDialog
-            v-if="showDeleteDialog"
-            title="Delete Blog"
-            message="Are you sure you want to delete this blog? This action cannot be undone."
-            confirm-text="Delete"
-            cancel-text="Cancel"
-            @confirm="deleteBlog"
-            @cancel="cancelDelete"
-        />
     </div>
 </template>

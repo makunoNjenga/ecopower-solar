@@ -122,7 +122,7 @@ onMounted(() => {
                 <!-- Featured Image -->
                 <div v-if="blog.featured_image" class="w-full">
                     <img
-                        :src="`/storage/${blog.featured_image}`"
+                        :src="blog.featured_image"
                         :alt="blog.title"
                         class="w-full h-96 object-cover"
                     />
@@ -187,7 +187,7 @@ onMounted(() => {
                                 class="relative aspect-video bg-gray-100 rounded-lg overflow-hidden"
                             >
                                 <img
-                                    :src="`/storage/${image.image_path}`"
+                                    :src="image.image_path"
                                     :alt="image.alt_text || blog.title"
                                     class="w-full h-full object-cover"
                                 />
@@ -253,7 +253,7 @@ onMounted(() => {
                                 >
                                     <img
                                         v-if="product.primary_image"
-                                        :src="`/storage/${product.primary_image.path}`"
+                                        :src="product.primary_image.path"
                                         :alt="product.name"
                                         class="w-full h-48 object-cover"
                                     />

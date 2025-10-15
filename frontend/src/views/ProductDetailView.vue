@@ -71,7 +71,7 @@
                         >
                             <img
                                 v-if="selectedImage"
-                                :src="selectedImage.url"
+                                :src="selectedImage.path"
                                 :alt="selectedImage.alt_text || product.name"
                                 class="w-full h-96 object-cover"
                             />
@@ -104,7 +104,7 @@
                                 ]"
                             >
                                 <img
-                                    :src="image.url"
+                                    :src="image.path"
                                     :alt="image.alt_text || product.name"
                                     class="w-full h-20 object-cover"
                                 />
@@ -307,7 +307,7 @@
                             <div class="aspect-w-16 aspect-h-12 bg-gray-100">
                                 <img
                                     v-if="relatedProduct.primary_image"
-                                    :src="relatedProduct.primary_image.url"
+                                    :src="relatedProduct.primary_image.path"
                                     :alt="
                                         relatedProduct.primary_image.alt_text ||
                                         relatedProduct.name

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useAlert } from "@/composables/useAlert";
 import { blogService } from "@/services/blogService";
 import { categoryService } from "@/services/categoryService";
 import { productService } from "@/services/productService";
@@ -8,6 +9,7 @@ import WysiwygEditor from "@/components/ui/WysiwygEditor.vue";
 
 const router = useRouter();
 const route = useRoute();
+const alert = useAlert();
 const isEditing = computed(() => !!route.params.id);
 const loading = ref(false);
 const categories = ref([]);
@@ -56,7 +58,7 @@ async function loadBlog() {
         selectedProducts.value = blog.products || [];
     } catch (error) {
         console.error("Error loading blog:", error);
-        alert("Failed to load blog");
+        alert.error("Failed to load blog");
         router.push("/admin/blogs");
     } finally {
         loading.value = false;
@@ -131,12 +133,12 @@ function isProductSelected(product) {
 async function saveBlog() {
     // Validation
     if (!form.value.title.trim()) {
-        alert("Please enter a blog title");
+        alert.warning("Please enter a blog title");
         return;
     }
 
     if (!form.value.content.trim()) {
-        alert("Please enter blog content");
+        alert.warning("Please enter blog content");
         return;
     }
 
@@ -144,16 +146,16 @@ async function saveBlog() {
     try {
         if (isEditing.value) {
             await blogService.updateBlog(route.params.id, form.value);
-            alert("Blog updated successfully");
+            alert.success("Blog updated successfully");
         } else {
             await blogService.createBlog(form.value);
-            alert("Blog created successfully");
+            alert.success("Blog created successfully");
         }
 
         router.push("/admin/blogs");
     } catch (error) {
         console.error("Error saving blog:", error);
-        alert(
+        alert.error(
             "Failed to save blog: " +
                 (error.response?.data?.message || error.message)
         );
@@ -270,11 +272,7 @@ onMounted(() => {
                             />
                             <div v-if="form.featured_image" class="mt-2">
                                 <img
-                                    :src="
-                                        form.featured_image.startsWith('blob:')
-                                            ? form.featured_image
-                                            : `/storage/${form.featured_image}`
-                                    "
+                                    :src="form.featured_image"
                                     alt="Featured image"
                                     class="h-32 w-auto rounded"
                                 />
@@ -404,7 +402,7 @@ onMounted(() => {
                                     <div class="flex items-center">
                                         <img
                                             v-if="product.primary_image"
-                                            :src="`/storage/${product.primary_image.path}`"
+                                            :src="product.primary_image.path"
                                             :alt="product.name"
                                             class="h-10 w-10 rounded object-cover mr-2"
                                         />

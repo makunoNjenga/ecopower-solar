@@ -125,7 +125,7 @@
                     <div class="aspect-w-16 aspect-h-12 bg-gray-100">
                         <img
                             v-if="product.primary_image"
-                            :src="product.primary_image.url"
+                            :src="product.primary_image.path"
                             :alt="
                                 product.primary_image.alt_text || product.name
                             "
