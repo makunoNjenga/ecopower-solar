@@ -152,7 +152,10 @@
                             {{ product.name }}
                         </h3>
                         <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                            {{ product.description }}
+                            {{
+                                product.short_description ||
+                                "High-quality solar solution"
+                            }}
                         </p>
 
                         <!-- Price Section -->

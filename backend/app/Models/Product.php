@@ -88,6 +88,17 @@ class Product extends Model
     }
 
     /**
+     * Set the short description attribute, stripping HTML tags.
+     *
+     * @param string $value
+     * @return void
+     */
+    public function setShortDescriptionAttribute($value)
+    {
+        $this->attributes['short_description'] = $value ? strip_tags($value) : null;
+    }
+
+    /**
      * Get the primary image for the product.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasOne

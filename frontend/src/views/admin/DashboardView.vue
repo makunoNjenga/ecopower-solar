@@ -799,13 +799,12 @@ onMounted(() => {
                             class="block text-sm font-medium text-gray-700 mb-1"
                             >Short Description</label
                         >
-                        <WysiwygEditor
+                        <textarea
                             v-model="form.short_description"
+                            rows="3"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green"
                             placeholder="Enter short product description..."
-                            :height="120"
-                            toolbar="bold italic underline | link | removeformat"
-                            plugins="link"
-                        />
+                        ></textarea>
                     </div>
 
                     <div>
